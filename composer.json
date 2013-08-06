@@ -1,0 +1,27 @@
+{
+    "name": "speckcommerce/speck-shipping",
+    "description": "",
+    "type": "library",
+    "keywords": [
+        "zf2",
+        "speckcommerce"
+    ],
+    "homepage": "http://github.com/speckcommerce/SpeckShipping",
+    "authors": [
+    ],
+    "require": {
+        "php": ">=5.4",
+        "zendframework/zendframework"      : "2.*",
+        "zf-commons/zfc-base"              : "0.1.*"
+        "speckcommerce/speck-catalog-cart" : "dev-master",
+        "speckcommerce/speck-checkout"     : "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "SpeckShipping": "src/"
+        },
+        "classmap": [
+            "./Module.php"
+        ]
+    }
+}

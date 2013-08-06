@@ -1,0 +1,8 @@
+-- shipping_class
+--     class_id, meta
+-- shipping_class_product
+--     class_id, product_id
+-- shipping_class_category
+--     class_id, category_id
+-- shipping_class_site
+--     class_id, category_id
