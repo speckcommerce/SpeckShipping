@@ -66,30 +66,23 @@ class Module
             'SpeckCheckout\Strategy\Step\UserInformation',
             'setComplete',
             function ($e) use ($sl) {
-                //$checkoutEvents = new \SwmCatalogLayout\Event\Checkout();
-                //$checkoutEvents->addArizonaSalesTax($e, $sl);
             }
         );
 
-        //on cart item add/modify, check for az sales tax and apply if necessary
         $em->attach(
             'SpeckCatalogCart\Service\CartService',
             'persistItem',
             function ($e) use ($sl) {
-                //$checkoutEvents = new \SwmCatalogLayout\Event\Checkout();
-                //$checkoutEvents->preCartItemPersist($e, $sl);
             }
         );
+        
         $em->attach(
             'SpeckCatalogCart\Service\CartService',
             'addItemToCart',
             function ($e) use ($sl) {
-                //$checkoutEvents = new \SwmCatalogLayout\Event\Checkout();
-                //$checkoutEvents->preCartItemPersist($e, $sl);
             }
         );
 
-        //todo: attach to shipping service cart shipping cost (default logic)
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingCost',
@@ -100,7 +93,6 @@ class Module
             }
         );
 
-        //todo: attach to shipping service cart item shipping cost (add incremental qty cost)
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingClassCost',
