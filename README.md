@@ -1,4 +1,6 @@
-listeners on shipping address, and cart item add.
+get the shipping cost for a cart full of items.
 
-item shipping classes are based on individual items.
-cart shipping classes use logic based around cart info (matching item shipping classes, number of items, total cost, etc)
+shipping classes for each item in cart, which may have custom logic.
+
+default shipping cost is the shipping class with the most expensive cost associated.
+allows for custom logic to modify/replace this.
