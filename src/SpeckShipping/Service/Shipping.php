@@ -16,9 +16,23 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface
 
     public function getShippingClass(CartItem $item)
     {
-        //todo: remove this;
-        $sc = new \SpeckShipping\Entity\ShippingClass;
-        $sc->setCost($this->getShippingClassCost($sc));
+        //todo: remove these test lines
+            $sc = new \SpeckShipping\Entity\ShippingClass;
+            $sc->setBaseCost(9.99);
+            $sc->set('cost_modifiers', array(
+                array(
+                    'name' => 'incremental_qty',
+                    'options' => array(
+                        'quantity' => 2,
+                        'cost'     => .35,
+                    ),
+                ),
+            ));
+            $item->setQuantity(4);
+        //end of test
+
+        $sc->setCartItem($item);
+        $this->getShippingClassCost($sc);
 
         return $sc;
     }
@@ -43,13 +57,16 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface
 
     public function getShippingCost(Cart $cart)
     {
-        $cost = 0;
         $shippingClasses = $this->getShippingClasses($cart);
+        $cost = (object) array('value' => 0);
 
         $this->getEventManager()->trigger(
-            __FUNCTION__, $this, array('shipping_classes' => $shippingClasses)
+            __FUNCTION__, $this, array(
+                'shipping_classes' => $shippingClasses,
+                'cost'             => $cost,
+            )
         );
 
-        return $cost;
+        return $cost->value;
     }
 }

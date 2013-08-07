@@ -18,6 +18,11 @@ class Module
     public function getConfig()
     {
         return array(
+            'speck_shipping' => array(
+                'cost_modifiers' => array(
+                    'incremental_qty' => '\SpeckShipping\Entity\CostModifier\IncrementalQty',
+                ),
+            ),
             'controllers' => array(
                 'invokables' => array(
                     'shipping' => 'SpeckShipping\Controller\Shipping',
@@ -40,6 +45,12 @@ class Module
             'service_manager' => array(
                 'invokables' => array(
                     'speckshipping_shipping_service' => 'SpeckShipping\Service\Shipping',
+                ),
+                'factories' => array(
+                    'speckshipping_config' => function ($sm) {
+                        $config = $sm->get('Config');
+                        return $config['speck_shipping'];
+                    },
                 ),
             ),
         );
@@ -78,7 +89,26 @@ class Module
             }
         );
 
-        //todo: attach to shipping service cart shipping cost
-        //todo: attach to shipping service cart item shipping cost
+        //todo: attach to shipping service cart shipping cost (default logic)
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) use ($sl) {
+                $handler = new \SpeckShipping\Event\Shipping();
+                $handler->setServiceLocator($sl);
+                $handler->cartShippingCost($e);
+            }
+        );
+
+        //todo: attach to shipping service cart item shipping cost (add incremental qty cost)
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingClassCost',
+            function ($e) use ($sl) {
+                $handler = new \SpeckShipping\Event\Shipping();
+                $handler->setServiceLocator($sl);
+                $handler->shippingClassCostModifiers($e);
+            }
+        );
     }
 }
