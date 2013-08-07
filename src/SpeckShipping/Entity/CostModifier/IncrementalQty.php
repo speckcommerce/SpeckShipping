@@ -5,7 +5,7 @@ namespace SpeckShipping\Entity\CostModifier;
 class IncrementalQty extends AbstractCostModifier
 {
     protected $quantity = 1; //threshhold qty
-    protected $cost     = .75; //cost associated per qty above the threshhold
+    protected $cost     = 0.00; //cost associated per qty above the threshhold
 
     public function adjustCost()
     {
