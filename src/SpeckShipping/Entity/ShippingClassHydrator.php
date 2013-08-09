@@ -10,9 +10,10 @@ class ShippingClassHydrator
             $this->notShippingClassException($model);
         }
 
-        return $model->setClassId($data['class_id'])
+        return $model->setClassId($data['shipping_class_id'])
             ->setName($data['name'])
-            ->setMeta(json_decode($data['meta']));
+            ->setBaseCost($data['base_cost'])
+            ->setMeta(json_decode($data['meta'], true));
     }
 
     public function notShippingClassException($m)
@@ -28,9 +29,10 @@ class ShippingClassHydrator
         }
 
         return array(
-            'class_id' => $model->getClassId(),
-            'name'     => $model->getName(),
-            'meta'     => json_encode($model->getMeta()),
+            'shipping_class_id' => $model->getClassId(),
+            'name'              => $model->getName(),
+            'base_cost'         => $model->getBaseCost(),
+            'meta'              => json_encode($model->getMeta()),
         );
     }
 }

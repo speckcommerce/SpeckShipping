@@ -7,6 +7,7 @@ use Zend\EventManager\EventManagerAwareTrait;
 use SpeckCart\Entity\Cart;
 use SpeckCart\Entity\CartItem;
 use SpeckShipping\Entity\ShippingClass;
+use SpeckCatalogCart\CatalogProductMeta;
 
 class Shipping implements ShippingInterface, EventManagerAwareInterface
 {
@@ -16,21 +17,10 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface
 
     public function getShippingClass(CartItem $item)
     {
-        //todo: remove these test lines
-            $sc = new \SpeckShipping\Entity\ShippingClass;
-            $sc->setBaseCost(9.99);
-            $sc->set('cost_modifiers', array(
-                array(
-                    'name' => 'incremental_qty',
-                    'options' => array(
-                        'quantity' => 2,
-                        'cost'     => .35,
-                    ),
-                ),
-            ));
-            $item->setQuantity(4);
-        //end of test
-
+        $response = $this->getEventManager()->trigger(
+            __FUNCTION__, $this, array('cart_item' => $item)
+        );
+        $sc = $response->last();
         $sc->setCartItem($item);
         $this->getShippingClassCost($sc);
 
@@ -55,7 +45,7 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface
         );
     }
 
-    public function getShippingCost(Cart $cart)
+    public function getShippingCost(Cart $cart, $decimalPlaces=null)
     {
         $shippingClasses = $this->getShippingClasses($cart);
         $cost = (object) array('value' => 0);
@@ -67,6 +57,18 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface
             )
         );
 
+        if ($decimalPlaces) {
+            return $this->ceilingDecimal($cost->value, $decimalPlaces);
+        }
         return $cost->value;
+    }
+
+    protected function ceilingDecimal($price, $decimalPlaces)
+    {
+        if (!is_int($decimalPlaces) || $decimalPlaces > 0) {
+            throw new \Exception('decimal places must be an integer above zero');
+        }
+        $mult = pow(10, $decimalPlaces);
+        return ceil($price * $mult) / $mult;
     }
 }

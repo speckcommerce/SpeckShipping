@@ -29,7 +29,7 @@ class Shipping extends AbstractActionController
         $cs = $this->getService('catalog_cart');
         $cart = $cs->getSessionCart();
 
-        $cost = $ss->getShippingCost($cart);
+        $cost = $ss->getShippingCost($cart, 2);
         var_dump($cost); die();
     }
 }

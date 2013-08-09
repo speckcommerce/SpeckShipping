@@ -54,4 +54,20 @@ class Shipping
 
         return;
     }
+
+    public function shippingClassForCartItem($e)
+    {
+        $item     = $e->getParam('cart_item');
+        $metaFqcn = get_class($item->getMetadata());
+        $config   = $this->getModuleConfig();
+        if (!array_key_exists($metaFqcn, $config['shipping_class_resolvers'])) {
+            return;
+        }
+        $sl = $this->getServiceLocator();
+        $resolver = $sl->get($config['shipping_class_resolvers'][$metaFqcn]);
+        $resolver->setServiceLocator($this->getServiceLocator());
+        $resolver->setCartItem($item);
+
+        return $resolver->resolveShippingClass();
+    }
 }

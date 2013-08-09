@@ -21,6 +21,10 @@ abstract class AbstractCostModifier implements CostModifierInterface,
         }
     }
 
+    public function adjustCost()
+    {
+    }
+
     public function getShippingClass()
     {
         return $this->shippingClass;

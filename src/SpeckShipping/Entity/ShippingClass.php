@@ -9,13 +9,15 @@ class ShippingClass
     protected $classId;
     protected $name;
     protected $baseCost;
-    protected $cost; //calculated cost after custom logic (if any)
     protected $meta = array();
+
+    //note: these are not hydrated/extracted with the hydrator
+    protected $cost; //calculated cost after custom logic (if any)
     protected $cartItem;
 
     public function get($key)
     {
-        if ($this->meta[$key]) {
+        if (isset($this->meta[$key])) {
             return $this->meta[$key];
         }
         return null;

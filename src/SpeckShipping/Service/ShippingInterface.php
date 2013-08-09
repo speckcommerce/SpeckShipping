@@ -14,5 +14,5 @@ interface ShippingInterface
 
     public function getShippingClassCost(ShippingClass $sc);
 
-    public function getShippingCost(Cart $cart);
+    public function getShippingCost(Cart $cart, $decimalPlaces = null);
 }

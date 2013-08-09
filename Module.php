@@ -2,6 +2,8 @@
 
 namespace SpeckShipping;
 
+use SpeckShipping\Entity\ShippingClassResolver\CatalogProductResolver;
+
 class Module
 {
     public function getAutoloaderConfig()
@@ -21,6 +23,10 @@ class Module
             'speck_shipping' => array(
                 'cost_modifiers' => array(
                     'incremental_qty' => '\SpeckShipping\Entity\CostModifier\IncrementalQty',
+                ),
+                'shipping_class_resolvers' => array(
+                    //fqcn of the item metadata => resolver name(from servicelocator)
+                    'SpeckCatalogCart\Model\CartProductMeta' => 'catalog_product_sc_resolver'
                 ),
             ),
             'controllers' => array(
@@ -42,16 +48,42 @@ class Module
                     ),
                 ),
             ),
-            'service_manager' => array(
-                'invokables' => array(
-                    'speckshipping_shipping_service' => 'SpeckShipping\Service\Shipping',
-                ),
-                'factories' => array(
-                    'speckshipping_config' => function ($sm) {
-                        $config = $sm->get('Config');
-                        return $config['speck_shipping'];
-                    },
-                ),
+        );
+    }
+    public function getServiceConfig()
+    {
+        return array(
+            'invokables' => array(
+                'speckshipping_shipping_service' => 'SpeckShipping\Service\Shipping',
+                'speckshipping_sc_mapper' => 'SpeckShipping\Mapper\ShippingClass',
+            ),
+            'factories' => array(
+                'speckshipping_config' => function ($sm) {
+                    $config = $sm->get('Config');
+                    return $config['speck_shipping'];
+                },
+                'catalog_product_sc_resolver' => function ($sm) {
+                    $resolver = new CatalogProductResolver();
+                    $resolver->setShippingClassMapper($sm->get('speckshipping_sc_mapper'));
+                    return $resolver;
+                },
+            ),
+            'aliases' => array(
+                'speckshipping_db' => 'Zend\Db\Adapter\Adapter',
+            ),
+        );
+    }
+
+    public function getViewHelperConfig()
+    {
+        return array(
+            'factories' => array(
+                'speckShipping' => function($sm) {
+                    $sm = $sm->getServiceLocator();
+                    $helper = new \SpeckShipping\View\Helper\Shipping;
+                    $helper->setShippingService($sm->get('speckshipping_shipping_service'));
+                    return $helper;
+                },
             ),
         );
     }
@@ -75,7 +107,7 @@ class Module
             function ($e) use ($sl) {
             }
         );
-        
+
         $em->attach(
             'SpeckCatalogCart\Service\CartService',
             'addItemToCart',
@@ -83,23 +115,27 @@ class Module
             }
         );
 
+        $shipping = new \SpeckShipping\Event\Shipping();
+        $shipping->setServiceLocator($sl);
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingClass',
+            function ($e) use ($shipping) {
+                return $shipping->shippingClassForCartItem($e);
+            }
+        );
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingCost',
-            function ($e) use ($sl) {
-                $handler = new \SpeckShipping\Event\Shipping();
-                $handler->setServiceLocator($sl);
-                $handler->cartShippingCost($e);
+            function ($e) use ($shipping) {
+                $shipping->cartShippingCost($e);
             }
         );
-
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingClassCost',
-            function ($e) use ($sl) {
-                $handler = new \SpeckShipping\Event\Shipping();
-                $handler->setServiceLocator($sl);
-                $handler->shippingClassCostModifiers($e);
+            function ($e) use ($shipping) {
+                $shipping->shippingClassCostModifiers($e);
             }
         );
     }
