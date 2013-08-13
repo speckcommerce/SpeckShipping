@@ -29,25 +29,6 @@ class Module
                     'SpeckCatalogCart\Model\CartProductMeta' => 'catalog_product_sc_resolver'
                 ),
             ),
-            'controllers' => array(
-                'invokables' => array(
-                    'shipping' => 'SpeckShipping\Controller\Shipping',
-                ),
-            ),
-            'router' => array(
-                'routes' => array(
-                    'shipping' => array(
-                        'type' => 'segment',
-                        'options' => array(
-                            'route' => '/shipping[/[:cartId]]',
-                            'defaults' => array(
-                                'controller' => 'shipping',
-                                'action'     => 'index'
-                            ),
-                        ),
-                    ),
-                ),
-            ),
         );
     }
     public function getServiceConfig()
@@ -56,6 +37,9 @@ class Module
             'invokables' => array(
                 'speckshipping_shipping_service' => 'SpeckShipping\Service\Shipping',
                 'speckshipping_sc_mapper' => 'SpeckShipping\Mapper\ShippingClass',
+                'speckshipping_p_sc_mapper' => 'SpeckShipping\Mapper\Product',
+                'speckshipping_c_sc_mapper' => 'SpeckShipping\Mapper\Category',
+                'speckshipping_w_sc_mapper' => 'SpeckShipping\Mapper\Website',
             ),
             'factories' => array(
                 'speckshipping_config' => function ($sm) {
@@ -65,6 +49,9 @@ class Module
                 'catalog_product_sc_resolver' => function ($sm) {
                     $resolver = new CatalogProductResolver();
                     $resolver->setShippingClassMapper($sm->get('speckshipping_sc_mapper'));
+                    $resolver->setProductMapper($sm->get('speckshipping_p_sc_mapper'));
+                    $resolver->setCategoryMapper($sm->get('speckshipping_c_sc_mapper'));
+                    $resolver->setWebsiteMapper($sm->get('speckshipping_w_sc_mapper'));
                     return $resolver;
                 },
             ),

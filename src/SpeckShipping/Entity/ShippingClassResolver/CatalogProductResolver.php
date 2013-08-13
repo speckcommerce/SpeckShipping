@@ -5,6 +5,9 @@ namespace SpeckShipping\Entity\ShippingClassResolver;
 class CatalogProductResolver extends AbstractShippingClassResolver
 {
     protected $shippingClassMapper;
+    protected $productMapper;
+    protected $categoryMapper;
+    protected $websiteMapper;
 
     //see if there is a shipping class associated with the product
     //if not, crawl up through parent categories until one is found,
@@ -20,7 +23,9 @@ class CatalogProductResolver extends AbstractShippingClassResolver
         if ($sc) return $sc;
 
         $sc = $this->getSiteShippingClass();
-        return $sc;
+        if ($sc) return $sc;
+
+        throw new \Exception('didnt get a shipping class for the item');
     }
 
     //traverse up category tree, returning a shipping class, or false
@@ -32,16 +37,17 @@ class CatalogProductResolver extends AbstractShippingClassResolver
 
         if ($productId) {
             $parentCategories = $this->getParentCategoriesForProduct($productId);
+            $catIdField = 'category_id';
         } else {
             $parentCategories = $this->getParentCategoriesForCategory($categoryId);
+            $catIdField = 'parent_category_id';
         }
 
         foreach ($parentCategories as $cat) {
-            if ($cat['shipping_class_id'] > 0) {
+            if ($cat['shipping_class_id']) {
                 return $this->getShippingClassById($cat['shipping_class_id']);
-            } else {
-                return $this->crawlForShippingClass(null, $cat['category_id']);
             }
+            return $this->crawlForShippingClass(null, $cat[$catIdField]);
         }
         return false;
     }
@@ -56,7 +62,7 @@ class CatalogProductResolver extends AbstractShippingClassResolver
     //joined with category shipping cass
     public function getParentCategoriesForCategory($categoryId)
     {
-        return $this->getShippingClassMapper()
+        return $this->getCategoryMapper()
             ->getParentCategoriesForCategory($categoryId);
     }
 
@@ -64,19 +70,19 @@ class CatalogProductResolver extends AbstractShippingClassResolver
     //joined with category shipping cass
     public function getParentCategoriesForProduct($productId)
     {
-        return $this->getShippingClassMapper()
+        return $this->getCategoryMapper()
             ->getParentCategoriesForProduct($productId);
     }
 
     public function getProductShippingClass($productId)
     {
-        return $this->getShippingClassMapper()
+        return $this->getProductMapper()
             ->getProductShippingClass($productId);
     }
 
     public function getSiteShippingClass()
     {
-        return $this->getShippingClassMapper()
+        return $this->getWebsiteMapper()
             ->getSiteShippingClass();
     }
 
@@ -88,6 +94,39 @@ class CatalogProductResolver extends AbstractShippingClassResolver
     public function setShippingClassMapper($shippingClassMapper)
     {
         $this->shippingClassMapper = $shippingClassMapper;
+        return $this;
+    }
+
+    public function getProductMapper()
+    {
+        return $this->productMapper;
+    }
+
+    public function setProductMapper($productMapper)
+    {
+        $this->productMapper = $productMapper;
+        return $this;
+    }
+
+    public function getCategoryMapper()
+    {
+        return $this->categoryMapper;
+    }
+
+    public function setCategoryMapper($categoryMapper)
+    {
+        $this->categoryMapper = $categoryMapper;
+        return $this;
+    }
+
+    public function getWebsiteMapper()
+    {
+        return $this->websiteMapper;
+    }
+
+    public function setWebsiteMapper($websiteMapper)
+    {
+        $this->websiteMapper = $websiteMapper;
         return $this;
     }
 }

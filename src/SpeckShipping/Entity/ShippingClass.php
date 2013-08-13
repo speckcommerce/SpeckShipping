@@ -2,9 +2,9 @@
 
 namespace SpeckShipping\Entity;
 
-use SpeckCart\Entity\CartItem;
+use SpeckCart\Entity\CartItemInterface;
 
-class ShippingClass
+class ShippingClass implements ShippingClassInterface
 {
     protected $classId;
     protected $name;
@@ -55,8 +55,11 @@ class ShippingClass
         return $this->meta;
     }
 
-    public function setMeta(array $meta)
+    public function setMeta(array $meta = null)
     {
+        if (null === $meta) {
+            $meta = array();
+        }
         $this->meta = $meta;
         return $this;
     }
@@ -77,7 +80,7 @@ class ShippingClass
         return $this->cartItem;
     }
 
-    public function setCartItem(CartItem $cartItem)
+    public function setCartItem(CartItemInterface $cartItem)
     {
         $this->cartItem = $cartItem;
         return $this;

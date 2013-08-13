@@ -2,17 +2,23 @@
 
 namespace SpeckShipping\Service;
 
-use SpeckShipping\Entity\ShippingClass;
-use SpeckCart\Entity\Cart;
-use SpeckCart\Entity\CartItem;
+use SpeckShipping\Entity\ShippingClassInterface;
+use SpeckCart\Entity\CartInterface;
+use SpeckCart\Entity\CartItemInterface;
 
 interface ShippingInterface
 {
-    public function getShippingClass(CartItem $item);
+    public function getShippingClassById($id);
 
-    public function getShippingClasses(Cart $cart);
+    public function getShippingClass(CartItemInterface $item);
 
-    public function getShippingClassCost(ShippingClass $sc);
+    public function getShippingClasses(CartInterface $cart);
 
-    public function getShippingCost(Cart $cart, $decimalPlaces = null);
+    public function getShippingClassCost(ShippingClassInterface $sc);
+
+    public function getShippingCost(CartInterface $cart, $decimalPlaces = null);
+
+    public function persistShippingClass(ShippingClassInterface $sc);
+
+    public function linkShippingClass(ShippingClassInterface $sc, $type, $typeId);
 }

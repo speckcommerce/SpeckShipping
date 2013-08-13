@@ -3,7 +3,7 @@
 namespace SpeckShipping\Entity\CostModifier;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
-use SpeckShipping\Entity\ShippingClass;
+use SpeckShipping\Entity\ShippingClassInterface;
 
 interface CostModifierInterface
 {
@@ -17,5 +17,5 @@ interface CostModifierInterface
 
     public function getShippingClass();
 
-    public function setShippingClass(ShippingClass $sc);
+    public function setShippingClass(ShippingClassInterface $sc);
 }

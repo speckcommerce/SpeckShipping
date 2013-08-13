@@ -3,7 +3,6 @@
 namespace SpeckShipping\Event;
 
 use SpeckShipping\Entity\CostModifier\CostModifierInterface;
-use SpeckShipping\Entity\ShippingClass;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 

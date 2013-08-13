@@ -4,7 +4,7 @@ namespace SpeckShipping\Entity\CostModifier;
 
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
-use SpeckShipping\Entity\ShippingClass;
+use SpeckShipping\Entity\ShippingClassInterface;
 
 abstract class AbstractCostModifier implements CostModifierInterface,
     ServiceLocatorAwareInterface
@@ -30,7 +30,7 @@ abstract class AbstractCostModifier implements CostModifierInterface,
         return $this->shippingClass;
     }
 
-    public function setShippingClass(ShippingClass $shippingClass)
+    public function setShippingClass(ShippingClassInterface $shippingClass)
     {
         $this->shippingClass = $shippingClass;
         return $this;
