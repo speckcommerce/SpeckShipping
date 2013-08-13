@@ -106,6 +106,10 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
 
     public function linkShippingClass(ShippingClassInterface $sc, $type, $typeId)
     {
+        if ($type !== 'product' && $type !== 'category' && $type !== 'website') {
+            throw new \Exception('invalid type!');
+        }
+
         $mapper = $this->getMapper($type);
         $mapper->linkShippingClass($sc, $typeId);
     }
