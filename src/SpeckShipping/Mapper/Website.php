@@ -13,7 +13,7 @@ class Website extends AbstractMapper
         $this->entityPrototype = $this->entityPrototypes['array'];
     }
 
-    public function linkShippingClass($shippingClassId, $siteId)
+    public function linkShippingClass($shippingClassId, $siteId, array $meta = array())
     {
         $table = $this->getTableName();
         $f = $this->fieldNames;
@@ -30,7 +30,8 @@ class Website extends AbstractMapper
         if (count($linker) === 0) {
             $row = array(
                 $f['sc_id'] => $sc->getClassId(),
-                $f['w_id']  => $siteId
+                $f['w_id']  => $siteId,
+                'meta'      => $meta
             );
             $this->insert($row);
         }
@@ -45,7 +46,11 @@ class Website extends AbstractMapper
         $select = $this->getSelect($t['sc'])
             ->join(
                 $table,
-                $this->on($table, $t['sc'], $f['sc_id'])
+                $this->on($table, $t['sc'], $f['sc_id']),
+                array(
+                    'shipping_class_id' => 'shipping_class_id',
+                    'site_meta'         => 'meta',
+                )
             );
 
         $where  = $this->where()

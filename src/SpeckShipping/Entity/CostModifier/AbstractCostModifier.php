@@ -23,6 +23,7 @@ abstract class AbstractCostModifier implements CostModifierInterface,
 
     public function adjustCost()
     {
+        //replace this in your extending class
     }
 
     public function getShippingClass()

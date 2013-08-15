@@ -9,7 +9,10 @@ class ShippingClass implements ShippingClassInterface
     protected $classId;
     protected $name;
     protected $baseCost;
-    protected $meta = array();
+    protected $meta         = array();
+    protected $productMeta  = array();
+    protected $categoryMeta = array();
+    protected $websiteMeta  = array();
 
     //note: these are not hydrated/extracted with the hydrator
     protected $cost; //calculated cost after custom logic (if any)
@@ -19,6 +22,12 @@ class ShippingClass implements ShippingClassInterface
     {
         if (isset($this->meta[$key])) {
             return $this->meta[$key];
+        } elseif (isset($this->productMeta[$key])) {
+            return $this->productMeta[$key];
+        } elseif (isset($this->categoryMeta[$key])) {
+            return $this->categoryMeta[$key];
+        } elseif (isset($this->websiteMeta[$key])) {
+            return $this->websiteMeta[$key];
         }
         return null;
     }
@@ -94,6 +103,33 @@ class ShippingClass implements ShippingClassInterface
     public function setCost($cost)
     {
         $this->cost = $cost;
+        return $this;
+    }
+
+    public function setProductMeta($productMeta = null)
+    {
+        if (null === $productMeta) {
+            $meta = array();
+        }
+        $this->productMeta = $productMeta;
+        return $this;
+    }
+
+    public function setCategoryMeta($categoryMeta = null)
+    {
+        if (null === $categoryMeta) {
+            $meta = array();
+        }
+        $this->categoryMeta = $categoryMeta;
+        return $this;
+    }
+
+    public function setWebsiteMeta(array $websiteMeta = null)
+    {
+        if (null === $websiteMeta) {
+            $meta = array();
+        }
+        $this->websiteMeta = $websiteMeta;
         return $this;
     }
 }

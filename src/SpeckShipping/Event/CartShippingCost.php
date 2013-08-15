@@ -18,16 +18,16 @@ class CartShippingCost implements ServiceLocatorAwareInterface
     public function cartShippingCost($e)
     {
         $data    = $e->getParam('data');
-        $options = $data['options'];
-        $shippingClasses = $data['shipping_classes'];
+        $options = $data->options;
+        $shippingClasses = $data->shipping_classes;
 
-        $highest = $options->cost;
-        foreach ($data['shipping_classes'] as $sc) {
+        $highest = $data->cost;
+        foreach ($shippingClasses as $sc) {
             if ($sc->getCost() > $highest) {
                 $highest = $sc->getCost();
             }
         }
-        $options->cost = $highest;
+        $data->cost = $highest;
     }
 
     //this is for shipping classes that came from
@@ -35,48 +35,44 @@ class CartShippingCost implements ServiceLocatorAwareInterface
     public function quantityCostIncrementer($e)
     {
         $data    = $e->getParam('data');
-        $options = $data['options'];
-        $shippingClasses = $data['shipping_classes'];
+        $shippingClasses = $data->shipping_classes;
 
         $list = array();
         foreach ($shippingClasses as $sc) {
-            if ($sc->get('resolved') !== $this->productResolverClass) continue;
-            if (!is_array($sc->get('qty_increment'))) continue;
+            if ($sc->get('resolved') !== $this->productResolverClass) {
+                continue;
+            }
+            if (!is_array($sc->get('sc_cart_cost_modifiers'))) {
+                continue;
+            }
+            if (!is_array($sc->get('sc_cart_cost_modifiers')['qty_increment'])) {
+                continue;
+            }
 
+            if (!isset($list[$sc->get('product_id')]))
+            {
+                $item = array(
+                    'qty' => 0,
+                    'classes' => array(),
+                );
+                $item['qty_increment_cost'] = $sc->get('qty_increment_cost')
+                   ?: $sc->get('sc_cart_cost_modifiers')['qty_increment']['default_inc'];
+
+                $list[$sc->get('product_id')] = $item;
+            }
             $list[$sc->get('product_id')]['qty'] += $sc->get('quantity');
             $list[$sc->get('product_id')]['classes'][] = $sc;
         }
 
-        var_dump($list); die();
-        foreach ($list as $pid => $stuff) {
+        foreach ($list as $pid => $info) {
+            $cost = $sc->getCost() + ($info['qty_increment_cost'] * ($info['qty'] -1));
+            foreach ($info['classes'] as $sc) {
+                $sc->setCost($cost);
+            }
         }
     }
 
-
-
-
-
-
-    //option handlers
-    protected function decimal($e, $params)
-    {
-
-        $this->ceilingDecimal($cost, $places);
-
-    }
-
-
-
-    protected function ceilingDecimal($number, $decimalPlaces)
-    {
-        if (!is_int($decimalPlaces) || !$decimalPlaces > 0) {
-            throw new \Exception('decimal places must be an integer above zero');
-        }
-        $mult = pow(10, $decimalPlaces);
-        return ceil($number * $mult) / $mult;
-    }
-
-    public function shippingPriority($e, $params)
+    public function shippingPriority($e)
     {
     }
 

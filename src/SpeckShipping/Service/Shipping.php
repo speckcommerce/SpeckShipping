@@ -56,6 +56,7 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
             $classes[] = $this->getShippingClass($item);
         }
         return $classes;
+        var_dump($classes);
     }
 
     public function getShippingClassCost(ShippingClassInterface $sc)
@@ -67,20 +68,25 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
         );
     }
 
-    public function getShippingCost(CartInterface $cart, array $options = array())
+    public function getShippingCost(CartInterface $cart, array $options = array(), $returnData = false)
     {
         $shippingClasses = $this->getShippingClasses($cart);
 
         $data = (object) array(
             'cart'             => $cart,
-            'cost'             => $cost,
+            'cost'             => 0,
             'options'          => $options,
-            'shipping_classes' => $shippingClasses
+            'shipping_classes' => $shippingClasses,
+            'messages'         => array()
         );
 
         $this->getEventManager()->trigger(
-            __FUNCTION__, $this, array($data)
+            __FUNCTION__, $this, array('data' => $data)
         );
+
+        if ($returnData) {
+            return $data;
+        }
 
         return $data->cost;
     }
@@ -90,27 +96,18 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
         return $this->getMapper('sc')->getShippingClassById($id);
     }
 
-    protected function ceilingDecimal($price, $decimalPlaces)
-    {
-        if (!is_int($decimalPlaces) || !$decimalPlaces > 0) {
-            throw new \Exception('decimal places must be an integer above zero');
-        }
-        $mult = pow(10, $decimalPlaces);
-        return ceil($price * $mult) / $mult;
-    }
-
     public function persistShippingClass(ShippingClassInterface $sc)
     {
         return $this->getMapper('sc')->persist($sc);
     }
 
-    public function linkShippingClass($shippingClassId, $type, $typeId)
+    public function linkShippingClass(integer $shippingClassId, string $type, integer $typeId, array $meta = array())
     {
         if ($type !== 'product' && $type !== 'category' && $type !== 'website') {
             throw new \Exception('invalid type!');
         }
 
         return $this->getMapper($type)
-            ->linkShippingClass($shippingClassId, $typeId);
+            ->linkShippingClass($shippingClassId, $typeId, $meta);
     }
 }

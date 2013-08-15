@@ -16,7 +16,7 @@ class Product extends AbstractMapper
         $this->entityPrototype = $this->entityPrototypes['array'];
     }
 
-    public function linkShippingClass($shippingClassId, $productId)
+    public function linkShippingClass($shippingClassId, $productId, array $meta = array())
     {
         $table = $this->getTableName();
         $f = $this->fieldNames;
@@ -31,13 +31,16 @@ class Product extends AbstractMapper
             ->limit(1);
 
         $linker = $this->selectRows($select);
+        $row = array(
+            $f['sc_id'] => $sc->getClassId(),
+            $f['p_id']  => $productId,
+            $f['w_id']  => $this->getSiteId(),
+            'meta'      => json_encode($meta)
+        );
         if (count($linker) === 0) {
-            $row = array(
-                $f['sc_id'] => $sc->getClassId(),
-                $f['p_id']  => $productId,
-                $f['w_id']  => $this->getSiteId()
-            );
             $this->insert($row);
+        } else {
+            $this->update($row, $where);
         }
     }
 
@@ -50,7 +53,8 @@ class Product extends AbstractMapper
         $select = $this->getSelect($t['sc'])
             ->join(
                 $table,
-                $this->on($table, $t['sc'], $f['sc_id'])
+                $this->on($table, $t['sc'], $f['sc_id']),
+                array('product_meta' => 'meta')
             );
 
         $where = $this->where()

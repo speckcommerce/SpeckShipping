@@ -13,7 +13,7 @@ class Category extends AbstractMapper
         $this->entityPrototype = $this->entityPrototypes['array'];
     }
 
-    public function linkShippingClass($shippingClassId, $categoryId)
+    public function linkShippingClass($shippingClassId, $categoryId, array $meta = array())
     {
         $table = $this->getTableName();
         $f = $this->fieldNames;
@@ -32,10 +32,38 @@ class Category extends AbstractMapper
             $row = array(
                 $f['sc_id'] => $sc->getClassId(),
                 $f['c_id']  => $categoryId,
-                $f['w_id']  => $this->getSiteId()
+                $f['w_id']  => $this->getSiteId(),
+                'meta'      => json_encode($meta)
             );
             $this->insert($row);
         }
+    }
+
+    public function getShippingClassForCategory($categoryId)
+    {
+        $table = $this->getTableName();
+        $t = $this->tableNames;
+        $f = $this->fieldNames;
+
+        $select = $this->getSelect($t['c_c_w'])
+            ->join(
+                $table,
+                $this->on($table, $t['c_c_w'], $f['c_id']),
+                array(
+                    'shipping_class_id' => 'shipping_class_id',
+                    'category_meta'     => 'meta'
+                ),
+                'left'
+            );
+
+        $where = $this->where()
+            ->equalTo("{$t['c_c_w']}.{$f['c_id']}", $categoryId)
+            ->equalTo("{$t['c_c_w']}.{$f['w_id']}", $this->getSiteId());
+
+            $select->where($where)
+                ->limit(1);
+
+        return $this->selectModel($select);
     }
 
     //get parent categories (array of rows)
@@ -50,7 +78,10 @@ class Category extends AbstractMapper
             ->join(
                 $table,
                 $this->on($table, $t['c_c_w'], $f['c_id']),
-                array('shipping_class_id'),
+                array(
+                    'shipping_class_id' => 'shipping_class_id',
+                    'category_meta'     => 'meta'
+                ),
                 'left'
             );
 
@@ -75,7 +106,10 @@ class Category extends AbstractMapper
             ->join(
                 $table,
                 $this->on($table, $t['c_c_p'], $f['c_id']),
-                array('shipping_class_id'),
+                array(
+                    'shipping_class_id' => 'shipping_class_id',
+                    'category_meta'     => 'meta'
+                ),
                 'left'
             );
 

@@ -15,44 +15,22 @@ class Shipping
         return $this->getServiceLocator()->get('speckshipping_config');
     }
 
-    //default logic for shipping cost
-    public function cartShippingCost($e)
-    {
-        $shippingClasses = $e->getParam('shipping_classes');
-        $costObject      = $e->getParam('cost');
-        $cost = $costObject->value;
-
-        foreach ($shippingClasses as $sc) {
-            if ($sc->getCost() > $cost) {
-                $cost = $sc->getCost();
-            }
-        }
-        $costObject->value = $cost;
-    }
-
-
-    //IncrementalQty crap
-    public function swmShippingCost($e)
-    {
-
-    }
-
     public function shippingClassCostModifiers($e)
     {
         $sc = $e->getParam('shipping_class');
-        $costMods = $sc->get('cost_modifiers');
+        $costMods = $sc->get('sc_cost_modifiers');
         if (null === $costMods) {
             return;
         }
 
         $config = $this->getModuleConfig();
 
-        foreach ($costMods as $mod) {
-            if (!array_key_exists($mod['name'], $config['cost_modifiers'])) {
+        foreach ($costMods as $name => $options) {
+            if (!array_key_exists($name, $config['sc_cost_modifiers'])) {
                 return;
             }
-            $cm = new $config['cost_modifiers'][$mod['name']];
-            $cm->setOptions(isset($mod['options']) ? $mod['options'] : array());
+            $cm = new $config['sc_cost_modifiers'][$name];
+            $cm->setOptions(is_array($options) ? $options : array());
             $cm->setShippingClass($sc);
             $cm->setServiceLocator($this->getServiceLocator());
             $cm->adjustCost();

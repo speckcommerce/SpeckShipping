@@ -21,5 +21,5 @@ interface ShippingInterface
 
     public function persistShippingClass(ShippingClassInterface $sc);
 
-    public function linkShippingClass($shippingClassId, $type, $typeId);
+    public function linkShippingClass(integer $shippingClassId, string $type, integer $typeId, array $meta = array());
 }

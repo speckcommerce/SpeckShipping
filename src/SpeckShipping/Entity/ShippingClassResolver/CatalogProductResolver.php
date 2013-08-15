@@ -59,17 +59,17 @@ class CatalogProductResolver extends AbstractShippingClassResolver
 
         foreach ($parentCategories as $cat) {
             if ($cat['shipping_class_id']) {
-                return $this->getShippingClassById($cat['shipping_class_id']);
+                return $this->getShippingClassForCategory($cat['shipping_class_id']);
             }
             return $this->crawlForShippingClass(null, $cat[$catIdField]);
         }
         return false;
     }
 
-    public function getShippingClassById($id)
+    public function getShippingClassForCategory($id)
     {
-        return $this->getShippingClassMapper()
-            ->getShippingClassById($id);
+        return $this->getCategoryMapper()
+            ->getShippingClassForCategory($id);
     }
 
     //get parent categories (array of rows)

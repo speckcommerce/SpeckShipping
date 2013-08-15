@@ -21,8 +21,9 @@ class Module
     {
         return array(
             'speck_shipping' => array(
-                'cost_modifiers' => array(
-                    'incremental_qty' => '\SpeckShipping\Entity\CostModifier\IncrementalQty',
+                //shipping class level cost modifiers
+                'sc_cost_modifiers' => array(
+                    //name of modifier => fqcn of class that implements costmodifierinterface
                 ),
                 'shipping_class_resolvers' => array(
                     //fqcn of the item metadata => resolver name(from servicelocator)
@@ -82,26 +83,19 @@ class Module
         $sl  = $app->getServiceManager();
         $em  = $app->getEventManager()->getSharedManager();
 
-        $em->attach(
-            'SpeckCheckout\Strategy\Step\UserInformation',
-            'setComplete',
-            function ($e) use ($sl) {
-            }
-        );
-
-        $em->attach(
-            'SpeckCatalogCart\Service\CartService',
-            'persistItem',
-            function ($e) use ($sl) {
-            }
-        );
-
-        $em->attach(
-            'SpeckCatalogCart\Service\CartService',
-            'addItemToCart',
-            function ($e) use ($sl) {
-            }
-        );
+        /*
+         * some events you may wish to attach to..
+         *
+         *   'SpeckCheckout\Strategy\Step\UserInformation',
+         *   'setComplete'
+         *
+         *   'SpeckCatalogCart\Service\CartService',
+         *   'persistItem'
+         *
+         *   'SpeckCatalogCart\Service\CartService',
+         *   'addItemToCart'
+         *
+         */
 
         $shipping = new \SpeckShipping\Event\Shipping();
         $shipping->setServiceLocator($sl);
@@ -120,7 +114,6 @@ class Module
             }
         );
 
-
         $shippingCost = new \SpeckShipping\Event\CartShippingCost();
         $shippingCost->setServiceLocator($sl);
         $em->attach(
@@ -128,28 +121,24 @@ class Module
             'getShippingCost',
             function ($e) use ($shippingCost) {
                 $shippingCost->quantityCostIncrementer($e);
-            }
+            },
+            300
         );
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingCost',
             function ($e) use ($shippingCost) {
                 $shippingCost->shippingPriority($e);
-            }
+            },
+            200
         );
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingCost',
             function ($e) use ($shippingCost) {
                 $shippingCost->cartShippingCost($e);
-            }
-        );
-        $em->attach(
-            'SpeckShipping\Service\Shipping',
-            'getShippingCost',
-            function ($e) use ($shippingCost) {
-                $shippingCost->decimal($e);
-            }
+            },
+            100
         );
     }
 }
