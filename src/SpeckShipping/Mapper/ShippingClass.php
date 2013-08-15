@@ -2,6 +2,8 @@
 
 namespace SpeckShipping\Mapper;
 
+use SpeckShipping\Entity\ShippingClassInterface;
+
 class ShippingClass extends AbstractMapper
 {
     protected $tableName = 'shipping_class';
