@@ -13,13 +13,13 @@ class Website extends AbstractMapper
         $this->entityPrototype = $this->entityPrototypes['array'];
     }
 
-    public function linkShippingClass($sc, $siteId)
+    public function linkShippingClass($shippingClassId, $siteId)
     {
         $table = $this->getTableName();
         $f = $this->fieldNames;
 
         $where = new Where();
-        $where->equalTo("{$table}.{$f['sc_id']}", $sc->getClassId())
+        $where->equalTo("{$table}.{$f['sc_id']}", $shippingClassId)
               ->equalTo("{$table}.{$f['w_id']}",  $siteId);
 
         $select = $this->getSelect($table)

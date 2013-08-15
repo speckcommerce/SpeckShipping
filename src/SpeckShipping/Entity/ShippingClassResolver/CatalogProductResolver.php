@@ -2,6 +2,8 @@
 
 namespace SpeckShipping\Entity\ShippingClassResolver;
 
+use SpeckShipping\Entity\ShippingClassInterface;
+
 class CatalogProductResolver extends AbstractShippingClassResolver
 {
     protected $shippingClassMapper;
@@ -17,15 +19,27 @@ class CatalogProductResolver extends AbstractShippingClassResolver
         $productId = $this->getCartItem()->getMetadata()->getProductId();
 
         $sc = $this->getProductShippingClass($productId);
-        if ($sc) return $sc;
+        if ($sc) return $this->decorateShippingClass($sc);
 
         $sc = $this->crawlForShippingClass($productId);
-        if ($sc) return $sc;
+        if ($sc) return $this->decorateShippingClass($sc);
 
         $sc = $this->getSiteShippingClass();
-        if ($sc) return $sc;
+        if ($sc) return $this->decorateShippingClass($sc);
 
         throw new \Exception('didnt get a shipping class for the item');
+    }
+
+    public function decorateShippingClass(ShippingClassInterface $sc)
+    {
+        $cartMeta = $this->getCartItem()->getMetadata();
+        $cartItem = $this->getCartItem();
+
+        $sc->set('resolved', get_class($this));
+        $sc->set('quantity', $cartItem->getQuantity());
+        $sc->set('product_id', $cartMeta->getProductId());
+
+        return $sc;
     }
 
     //traverse up category tree, returning a shipping class, or false
@@ -59,7 +73,7 @@ class CatalogProductResolver extends AbstractShippingClassResolver
     }
 
     //get parent categories (array of rows)
-    //joined with category shipping cass
+    //joined with category shipping class
     public function getParentCategoriesForCategory($categoryId)
     {
         return $this->getCategoryMapper()

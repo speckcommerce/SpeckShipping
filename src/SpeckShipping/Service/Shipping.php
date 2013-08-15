@@ -10,6 +10,7 @@ use SpeckCart\Entity\CartInterface;
 use SpeckCart\Entity\CartItemInterface;
 use SpeckShipping\Entity\ShippingClassInterface;
 use SpeckCatalogCart\CatalogProductMeta;
+use Zend\Stdlib\Parameters;
 
 
 class Shipping implements ShippingInterface, EventManagerAwareInterface,
@@ -66,22 +67,22 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
         );
     }
 
-    public function getShippingCost(CartInterface $cart, $decimalPlaces=null)
+    public function getShippingCost(CartInterface $cart, array $options = array())
     {
         $shippingClasses = $this->getShippingClasses($cart);
-        $cost = (object) array('value' => 0);
 
-        $this->getEventManager()->trigger(
-            __FUNCTION__, $this, array(
-                'shipping_classes' => $shippingClasses,
-                'cost'             => $cost,
-            )
+        $data = (object) array(
+            'cart'             => $cart,
+            'cost'             => $cost,
+            'options'          => $options,
+            'shipping_classes' => $shippingClasses
         );
 
-        if ($decimalPlaces) {
-            return $this->ceilingDecimal($cost->value, $decimalPlaces);
-        }
-        return $cost->value;
+        $this->getEventManager()->trigger(
+            __FUNCTION__, $this, array($data)
+        );
+
+        return $data->cost;
     }
 
     public function getShippingClassById($id)
@@ -100,17 +101,16 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
 
     public function persistShippingClass(ShippingClassInterface $sc)
     {
-        $mapper = $this->getMapper('sc');
-        $mapper->persistShippingClass($sc);
+        return $this->getMapper('sc')->persist($sc);
     }
 
-    public function linkShippingClass(ShippingClassInterface $sc, $type, $typeId)
+    public function linkShippingClass($shippingClassId, $type, $typeId)
     {
         if ($type !== 'product' && $type !== 'category' && $type !== 'website') {
             throw new \Exception('invalid type!');
         }
 
-        $mapper = $this->getMapper($type);
-        $mapper->linkShippingClass($sc, $typeId);
+        return $this->getMapper($type)
+            ->linkShippingClass($shippingClassId, $typeId);
     }
 }

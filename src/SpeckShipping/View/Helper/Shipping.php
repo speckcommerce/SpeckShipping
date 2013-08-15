@@ -15,9 +15,9 @@ class Shipping extends AbstractHelper
         return $this;
     }
 
-    public function cartCost(CartInterface $cart, $decimal=2)
+    public function cartCost(CartInterface $cart, array $options = array())
     {
-        return $this->getShippingService()->getShippingCost($cart, $decimal);
+        return $this->getShippingService()->getShippingCost($cart, $options);
     }
 
     public function getShippingService()

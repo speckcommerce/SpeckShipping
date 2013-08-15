@@ -30,6 +30,13 @@ class Shipping
         $costObject->value = $cost;
     }
 
+
+    //IncrementalQty crap
+    public function swmShippingCost($e)
+    {
+
+    }
+
     public function shippingClassCostModifiers($e)
     {
         $sc = $e->getParam('shipping_class');

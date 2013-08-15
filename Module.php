@@ -79,8 +79,8 @@ class Module
     public function onBootstrap($e)
     {
         $app = $e->getParam('application');
-        $em  = $app->getEventManager()->getSharedManager();
         $sl  = $app->getServiceManager();
+        $em  = $app->getEventManager()->getSharedManager();
 
         $em->attach(
             'SpeckCheckout\Strategy\Step\UserInformation',
@@ -114,16 +114,41 @@ class Module
         );
         $em->attach(
             'SpeckShipping\Service\Shipping',
-            'getShippingCost',
+            'getShippingClassCost',
             function ($e) use ($shipping) {
-                $shipping->cartShippingCost($e);
+                $shipping->shippingClassCostModifiers($e);
+            }
+        );
+
+
+        $shippingCost = new \SpeckShipping\Event\CartShippingCost();
+        $shippingCost->setServiceLocator($sl);
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) use ($shippingCost) {
+                $shippingCost->quantityCostIncrementer($e);
             }
         );
         $em->attach(
             'SpeckShipping\Service\Shipping',
-            'getShippingClassCost',
-            function ($e) use ($shipping) {
-                $shipping->shippingClassCostModifiers($e);
+            'getShippingCost',
+            function ($e) use ($shippingCost) {
+                $shippingCost->shippingPriority($e);
+            }
+        );
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) use ($shippingCost) {
+                $shippingCost->cartShippingCost($e);
+            }
+        );
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) use ($shippingCost) {
+                $shippingCost->decimal($e);
             }
         );
     }

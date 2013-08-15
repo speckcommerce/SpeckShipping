@@ -5,6 +5,7 @@ namespace SpeckShipping\Service;
 use SpeckShipping\Entity\ShippingClassInterface;
 use SpeckCart\Entity\CartInterface;
 use SpeckCart\Entity\CartItemInterface;
+use Zend\Stdlib\AbstractOptions;
 
 interface ShippingInterface
 {
@@ -16,9 +17,9 @@ interface ShippingInterface
 
     public function getShippingClassCost(ShippingClassInterface $sc);
 
-    public function getShippingCost(CartInterface $cart, $decimalPlaces = null);
+    public function getShippingCost(CartInterface $cart, array $options = array());
 
     public function persistShippingClass(ShippingClassInterface $sc);
 
-    public function linkShippingClass(ShippingClassInterface $sc, $type, $typeId);
+    public function linkShippingClass($shippingClassId, $type, $typeId);
 }

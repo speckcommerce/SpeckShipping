@@ -16,13 +16,13 @@ class Product extends AbstractMapper
         $this->entityPrototype = $this->entityPrototypes['array'];
     }
 
-    public function linkShippingClass($sc, $productId)
+    public function linkShippingClass($shippingClassId, $productId)
     {
         $table = $this->getTableName();
         $f = $this->fieldNames;
 
         $where = $this->where()
-            ->equalTo("{$table}.{$f['sc_id']}", $sc->getClassId())
+            ->equalTo("{$table}.{$f['sc_id']}", $shippingClassId)
             ->equalTo("{$table}.{$f['p_id']}",  $productId)
             ->equalTo("{$table}.{$f['w_id']}",  $this->getSiteId());
 
