@@ -34,42 +34,41 @@ class CartShippingCost implements ServiceLocatorAwareInterface
     //CatalogProductResolver
     public function quantityCostIncrementer($e)
     {
-        $data    = $e->getParam('data');
-        $shippingClasses = $data->shipping_classes;
+     //   $data    = $e->getParam('data');
+     //   $shippingClasses = $data->shipping_classes;
 
-        $list = array();
-        foreach ($shippingClasses as $sc) {
-            if ($sc->get('resolved') !== $this->productResolverClass) {
-                continue;
-            }
-            if (!is_array($sc->get('sc_cart_cost_modifiers'))) {
-                continue;
-            }
-            if (!is_array($sc->get('sc_cart_cost_modifiers')['qty_increment'])) {
-                continue;
-            }
+     //   $list = array();
+     //   foreach ($shippingClasses as $sc) {
+     //       if (
+     //           $sc->get('resolved') !== $this->productResolverClass
+     //           || !is_array($sc->get('sc_cart_cost_modifiers'))
+     //           || !is_array($sc->get('sc_cart_cost_modifiers')['qty_increment'])
+     //       ) {
+     //           continue;
+     //       }
 
-            if (!isset($list[$sc->get('product_id')]))
-            {
-                $item = array(
-                    'qty' => 0,
-                    'classes' => array(),
-                );
-                $item['qty_increment_cost'] = $sc->get('qty_increment_cost')
-                   ?: $sc->get('sc_cart_cost_modifiers')['qty_increment']['default_inc'];
+     //       $pid = $sc->get('product_id');
+     //       if (!isset($list[$pid])) {
+     //           $item = (object) array(
+     //               'qty' => 0,
+     //               'classes' => array(),
+     //               'incCost' => $sc->get('qty_increment_cost')
+     //              ?: $sc->get('sc_cart_cost_modifiers')['qty_increment']['default_inc'];
 
-                $list[$sc->get('product_id')] = $item;
-            }
-            $list[$sc->get('product_id')]['qty'] += $sc->get('quantity');
-            $list[$sc->get('product_id')]['classes'][] = $sc;
-        }
+     //           $list[$pid] = $item;
+     //       }
+     //       $item = $list[$pid];
 
-        foreach ($list as $pid => $info) {
-            $cost = $sc->getCost() + ($info['qty_increment_cost'] * ($info['qty'] -1));
-            foreach ($info['classes'] as $sc) {
-                $sc->setCost($cost);
-            }
-        }
+     //       $item->qty += $sc->get('quantity');
+     //       $item->classes[] = $sc;
+     //   }
+
+     //   foreach ($list as $pid => $info) {
+     //       $cost = $sc->getCost() + ($info->incCost * ($info->qty -1));
+     //       foreach ($info->classes as $sc) {
+     //           $sc->setCost($cost);
+     //       }
+     //   }
     }
 
     public function shippingPriority($e)

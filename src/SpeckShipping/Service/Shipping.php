@@ -56,7 +56,6 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
             $classes[] = $this->getShippingClass($item);
         }
         return $classes;
-        var_dump($classes);
     }
 
     public function getShippingClassCost(ShippingClassInterface $sc)
@@ -101,7 +100,7 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
         return $this->getMapper('sc')->persist($sc);
     }
 
-    public function linkShippingClass(integer $shippingClassId, string $type, integer $typeId, array $meta = array())
+    public function linkShippingClass($shippingClassId, $type, $typeId, array $meta = array())
     {
         if ($type !== 'product' && $type !== 'category' && $type !== 'website') {
             throw new \Exception('invalid type!');

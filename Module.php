@@ -120,14 +120,6 @@ class Module
             'SpeckShipping\Service\Shipping',
             'getShippingCost',
             function ($e) use ($shippingCost) {
-                $shippingCost->quantityCostIncrementer($e);
-            },
-            300
-        );
-        $em->attach(
-            'SpeckShipping\Service\Shipping',
-            'getShippingCost',
-            function ($e) use ($shippingCost) {
                 $shippingCost->shippingPriority($e);
             },
             200
@@ -140,5 +132,23 @@ class Module
             },
             100
         );
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) {
+                $handler = new \SpeckShipping\Event\IncrementalQtyCost($e);
+                $handler->adjustCosts();
+            },
+            300
+        );
+
+        //$em->attach(
+        //    'SpeckShipping\Service\Shipping',
+        //    'getShippingCost',
+        //    function ($e) use ($shippingCost) {
+        //        $handler->doit($e);
+        //    },
+        //    300
+        //);
     }
 }
