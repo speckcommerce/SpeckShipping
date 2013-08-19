@@ -32,7 +32,7 @@ class Product extends AbstractMapper
 
         $linker = $this->selectRows($select);
         $row = array(
-            $f['sc_id'] => $sc->getClassId(),
+            $f['sc_id'] => $shippingClassId,
             $f['p_id']  => $productId,
             $f['w_id']  => $this->getSiteId(),
             'meta'      => json_encode($meta)

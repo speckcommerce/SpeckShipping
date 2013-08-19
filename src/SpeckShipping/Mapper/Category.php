@@ -30,7 +30,7 @@ class Category extends AbstractMapper
         $linker = $this->selectRows($select);
         if (count($linker) === 0) {
             $row = array(
-                $f['sc_id'] => $sc->getClassId(),
+                $f['sc_id'] => $shippingClassId,
                 $f['c_id']  => $categoryId,
                 $f['w_id']  => $this->getSiteId(),
                 'meta'      => json_encode($meta)
