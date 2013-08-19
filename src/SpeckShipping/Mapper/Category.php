@@ -23,7 +23,7 @@ class Category extends AbstractMapper
             ->equalTo("{$table}.{$f['c_id']}",  $categoryId)
             ->equalTo("{$table}.{$f['w_id']}",  $this->getSiteId());
 
-        $select = $this->select($table)
+        $select = $this->getSelect($table)
             ->where($where)
             ->limit(1);
 
