@@ -18,9 +18,9 @@ class Website extends AbstractMapper
         $table = $this->getTableName();
         $f = $this->fieldNames;
 
-        $where = new Where();
-        $where->equalTo("{$table}.{$f['sc_id']}", $shippingClassId)
-              ->equalTo("{$table}.{$f['w_id']}",  $siteId);
+        $where = $this->where()
+            ->equalTo("{$table}.{$f['sc_id']}", $shippingClassId)
+            ->equalTo("{$table}.{$f['w_id']}",  $siteId);
 
         $select = $this->getSelect($table)
             ->where($where)
