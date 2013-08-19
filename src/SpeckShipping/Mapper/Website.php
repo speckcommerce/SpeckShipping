@@ -29,7 +29,7 @@ class Website extends AbstractMapper
         $linker = $this->selectRows($select);
         if (count($linker) === 0) {
             $row = array(
-                $f['sc_id'] => $sc->getClassId(),
+                $f['sc_id'] => $shippingClassId,
                 $f['w_id']  => $siteId,
                 'meta'      => $meta
             );
