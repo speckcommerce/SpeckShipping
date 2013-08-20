@@ -3,7 +3,6 @@
 namespace SpeckShipping\Event;
 
 use Zend\EventManager\EventInterface;
-use SpeckCatalogCart\Model\CartProductMeta;
 
 class ShippingPriority
 {

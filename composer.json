@@ -14,7 +14,7 @@
         "zendframework/zendframework"      : "2.*",
         "zf-commons/zfc-base"              : "0.1.*"
         "speckcommerce/speck-catalog-cart" : "dev-master",
-        "speckcommerce/speck-checkout"     : "dev-master"
+        "speckcommerce/speck-cart"         : "dev-master",
     },
     "autoload": {
         "psr-0": {
@@ -23,5 +23,23 @@
         "classmap": [
             "./Module.php"
         ]
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/zendframework/zf2"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/ZF-Commons/ZfcBase"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/speckcommerce/SpeckCatalogCart"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/speckcommerce/SpeckCart"
+        },
+    ]
 }
