@@ -2,104 +2,50 @@
 
 namespace SpeckShipping\Event;
 
-use SpeckCatalogCart\Model\CartProductMeta;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use Zend\EventManager\EventInterface;
 
-class CartShippingCost implements ServiceLocatorAwareInterface
+class CartShippingCost
 {
-    use ServiceLocatorAwareTrait;
+    protected $shippingClasses;
+    protected $cost = 0;
 
-    protected $productResolverClass =
-        'SpeckShipping\Entity\ShippingClassResolver\CatalogProductResolver';
+    public function __construct(EventInterface $e)
+    {
+        $data = $e->getParam('data');
+        $this->setShippingClasses($data->shipping_classes);
+    }
 
     //default logic for shipping cost
     //get most expensive shipping class
-    public function cartShippingCost($e)
+    public function getShippingCost($e)
     {
-        $data    = $e->getParam('data');
-        $options = $data->options;
-        $shippingClasses = $data->shipping_classes;
-
-        $highest = $data->cost;
-        foreach ($shippingClasses as $sc) {
-            if ($sc->getCost() > $highest) {
-                $highest = $sc->getCost();
+        foreach ($this->shippingClasses as $sc) {
+            if ($sc->getCost() > $this->cost) {
+                $this->cost = $sc->getCost();
             }
         }
-        $data->cost = $highest;
+        return $this->getCost();
     }
 
-    //this is for shipping classes that came from
-    //CatalogProductResolver
-    public function quantityCostIncrementer($e)
+    public function getShippingClasses()
     {
-     //   $data    = $e->getParam('data');
-     //   $shippingClasses = $data->shipping_classes;
-
-     //   $list = array();
-     //   foreach ($shippingClasses as $sc) {
-     //       if (
-     //           $sc->get('resolved') !== $this->productResolverClass
-     //           || !is_array($sc->get('sc_cart_cost_modifiers'))
-     //           || !is_array($sc->get('sc_cart_cost_modifiers')['qty_increment'])
-     //       ) {
-     //           continue;
-     //       }
-
-     //       $pid = $sc->get('product_id');
-     //       if (!isset($list[$pid])) {
-     //           $item = (object) array(
-     //               'qty' => 0,
-     //               'classes' => array(),
-     //               'incCost' => $sc->get('qty_increment_cost')
-     //              ?: $sc->get('sc_cart_cost_modifiers')['qty_increment']['default_inc'];
-
-     //           $list[$pid] = $item;
-     //       }
-     //       $item = $list[$pid];
-
-     //       $item->qty += $sc->get('quantity');
-     //       $item->classes[] = $sc;
-     //   }
-
-     //   foreach ($list as $pid => $info) {
-     //       $cost = $sc->getCost() + ($info->incCost * ($info->qty -1));
-     //       foreach ($info->classes as $sc) {
-     //           $sc->setCost($cost);
-     //       }
-     //   }
+        return $this->shippingClasses;
     }
 
-    public function shippingPriority($e)
+    public function setShippingClasses($shippingClasses)
     {
-    }
-
-    public function getCommonShippingProrities(array $shippingClasses)
-    {
-        if (count($shippingClasses()) < 1) {
-            throw new \Exception('no shipping classes set');
-        }
-
         $this->shippingClasses = $shippingClasses;
+        return $this;
+    }
 
-        //build array of shipping class names, associated to the shipping class
-        $scPriorities = array();
-        foreach ($shippingClasses as $sc) {
-            $scPriorities[$sc->getClassId()] = array_keys($sc->get('shipping_priorities'));
-        }
+    public function getCost()
+    {
+        return $this->cost;
+    }
 
-        //merge all priority names
-        $names = array();
-        foreach($scPriorities as $scId => $priorityNames) {
-            $names = array_merge($priorityNames, $names);
-        }
-
-        //prune names down to the common ones for all shipping classes
-        foreach($scPriorities as $scId => $pNames) {
-            $names = array_intersect($names, $pNames);
-        }
-
-        return $names;
+    public function setCost($cost)
+    {
+        $this->cost = $cost;
+        return $this;
     }
 }

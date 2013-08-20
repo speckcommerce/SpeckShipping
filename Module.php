@@ -38,10 +38,10 @@ class Module
         return array(
             'invokables' => array(
                 'speckshipping_shipping_service' => 'SpeckShipping\Service\Shipping',
-                'speckshipping_sc_mapper' => 'SpeckShipping\Mapper\ShippingClass',
-                'speckshipping_p_sc_mapper' => 'SpeckShipping\Mapper\Product',
-                'speckshipping_c_sc_mapper' => 'SpeckShipping\Mapper\Category',
-                'speckshipping_w_sc_mapper' => 'SpeckShipping\Mapper\Website',
+                'speckshipping_sc_mapper'        => 'SpeckShipping\Mapper\ShippingClass',
+                'speckshipping_p_sc_mapper'      => 'SpeckShipping\Mapper\Product',
+                'speckshipping_c_sc_mapper'      => 'SpeckShipping\Mapper\Category',
+                'speckshipping_w_sc_mapper'      => 'SpeckShipping\Mapper\Website',
             ),
             'factories' => array(
                 'speckshipping_config' => function ($sm) {
@@ -86,18 +86,15 @@ class Module
         /*
          * some events you may wish to attach to..
          *
-         *   'SpeckCheckout\Strategy\Step\UserInformation',
-         *   'setComplete'
+         *   SpeckCheckout\Strategy\Step\UserInformation
+         *   setComplete
          *
-         *   'SpeckCatalogCart\Service\CartService',
-         *   'persistItem'
-         *
-         *   'SpeckCatalogCart\Service\CartService',
-         *   'addItemToCart'
+         *   SpeckCatalogCart\Service\CartService
+         *   persistItem, addItemToCart
          *
          */
 
-        $shipping = new \SpeckShipping\Event\Shipping();
+        $shipping = new \SpeckShipping\Event\ShippingClassEvents();
         $shipping->setServiceLocator($sl);
         $em->attach(
             'SpeckShipping\Service\Shipping',
@@ -114,24 +111,7 @@ class Module
             }
         );
 
-        $shippingCost = new \SpeckShipping\Event\CartShippingCost();
-        $shippingCost->setServiceLocator($sl);
-        $em->attach(
-            'SpeckShipping\Service\Shipping',
-            'getShippingCost',
-            function ($e) use ($shippingCost) {
-                $shippingCost->shippingPriority($e);
-            },
-            200
-        );
-        $em->attach(
-            'SpeckShipping\Service\Shipping',
-            'getShippingCost',
-            function ($e) use ($shippingCost) {
-                $shippingCost->cartShippingCost($e);
-            },
-            100
-        );
+        //cart shipping cost events
         $em->attach(
             'SpeckShipping\Service\Shipping',
             'getShippingCost',
@@ -141,14 +121,23 @@ class Module
             },
             300
         );
-
-        //$em->attach(
-        //    'SpeckShipping\Service\Shipping',
-        //    'getShippingCost',
-        //    function ($e) use ($shippingCost) {
-        //        $handler->doit($e);
-        //    },
-        //    300
-        //);
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) {
+                $handler = new \SpeckShipping\Event\ShippingPriority($e);
+                $handler->adjustCosts();
+            },
+            200
+        );
+        $em->attach(
+            'SpeckShipping\Service\Shipping',
+            'getShippingCost',
+            function ($e) {
+                $handler = new \SpeckShipping\Event\CartShippingCost($e);
+                return $handler->getShippingCost();
+            },
+            100
+        );
     }
 }

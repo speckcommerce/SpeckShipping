@@ -2,6 +2,9 @@
 
 namespace SpeckShipping\Event;
 
+use Zend\EventManager\EventInterface;
+use SpeckShipping\Entity\ShippingClassInterface;
+
 class IncrementalQtyCost
 {
     protected $productResolverClass =
@@ -12,7 +15,7 @@ class IncrementalQtyCost
     protected $productIncrementCosts       = array();
     protected $initialProductShippingCosts = array();
 
-    public function __construct($e)
+    public function __construct(EventInterface $e)
     {
         $data = $e->getParam('data');
 
@@ -31,12 +34,11 @@ class IncrementalQtyCost
         }
     }
 
-    public function prepShippingClass($sc)
+    public function prepShippingClass(ShippingClassInterface $sc)
     {
         if (
             $sc->get('resolved') !== $this->productResolverClass
-            || !is_array($sc->get('sc_cart_cost_modifiers'))
-            || !is_array($sc->get('sc_cart_cost_modifiers')['qty_increment'])
+            || null === $sc->get('default_qty_increment_cost')
         ) {
             return;
         }
@@ -48,7 +50,7 @@ class IncrementalQtyCost
         $this->groupedShippingClasses[$productId][] = $sc;
 
         $incrementCost = $sc->get('qty_increment_cost')
-            ?: $sc->get('sc_cart_cost_modifiers')['qty_increment']['default_inc'];
+                      ?: $sc->get('default_qty_increment_cost');
         $this->setIncrementalCost($productId, $incrementCost);
 
         $this->addProductQuantity($productId, $sc->get('quantity'));

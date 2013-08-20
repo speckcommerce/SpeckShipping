@@ -39,12 +39,12 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
 
     public function getShippingClass(CartItemInterface $item)
     {
-        $response = $this->getEventManager()->trigger(
+        $sc = $this->getEventManager()->trigger(
             __FUNCTION__, $this, array('cart_item' => $item)
-        );
-        $sc = $response->last();
+        )->last();
+
         $sc->setCartItem($item);
-        $this->getShippingClassCost($sc);
+        $this->setShippingClassCost($sc);
 
         return $sc;
     }
@@ -58,7 +58,7 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
         return $classes;
     }
 
-    public function getShippingClassCost(ShippingClassInterface $sc)
+    public function setShippingClassCost(ShippingClassInterface $sc)
     {
         $sc->setCost($sc->getBaseCost());
 
@@ -73,21 +73,13 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
 
         $data = (object) array(
             'cart'             => $cart,
-            'cost'             => 0,
             'options'          => $options,
             'shipping_classes' => $shippingClasses,
-            'messages'         => array()
         );
 
-        $this->getEventManager()->trigger(
+        return $this->getEventManager()->trigger(
             __FUNCTION__, $this, array('data' => $data)
-        );
-
-        if ($returnData) {
-            return $data;
-        }
-
-        return $data->cost;
+        )->last();
     }
 
     public function getShippingClassById($id)
@@ -102,7 +94,7 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
 
     public function linkShippingClass($shippingClassId, $type, $typeId, array $meta = array())
     {
-        if ($type !== 'product' && $type !== 'category' && $type !== 'website') {
+        if (!in_array($type, array('product', 'category', 'website'))) {
             throw new \Exception('invalid type!');
         }
 

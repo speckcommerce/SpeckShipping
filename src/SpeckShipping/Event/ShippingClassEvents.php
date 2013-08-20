@@ -6,7 +6,7 @@ use SpeckShipping\Entity\CostModifier\CostModifierInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
-class Shipping
+class ShippingClassEvents
 {
     use ServiceLocatorAwareTrait;
 
