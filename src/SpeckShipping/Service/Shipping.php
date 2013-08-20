@@ -77,9 +77,15 @@ class Shipping implements ShippingInterface, EventManagerAwareInterface,
             'shipping_classes' => $shippingClasses,
         );
 
-        return $this->getEventManager()->trigger(
+        $response = $this->getEventManager()->trigger(
             __FUNCTION__, $this, array('data' => $data)
-        )->last();
+        );
+
+        if ($returnData) {
+            return $data;
+        }
+
+        return $response->last();
     }
 
     public function getShippingClassById($id)
