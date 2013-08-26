@@ -17,7 +17,7 @@ class CartShippingCost
 
     //default logic for shipping cost
     //get most expensive shipping class
-    public function getShippingCost($e)
+    public function getShippingCost()
     {
         foreach ($this->shippingClasses as $sc) {
             if ($sc->getCost() > $this->cost) {
